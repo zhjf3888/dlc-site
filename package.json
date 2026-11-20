@@ -1,0 +1,9 @@
+{
+  "name": "dlc-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DeepLiveCam 3 Pro 中文门面站（纯静态页面 + 自带的极简静态服务器）",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
