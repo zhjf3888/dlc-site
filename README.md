@@ -53,6 +53,7 @@ git push -u origin main
 
 ## 四、重新镜像（原作者页面改了想再搬一遍）
 
+
 ```
 python C:\Users\zhjf\AppData\Local\Temp\x340\mirror.py
 ```
@@ -61,3 +62,12 @@ python C:\Users\zhjf\AppData\Local\Temp\x340\mirror.py
 它自己的导航页脚换成我们的，站内地址改写成一个 html 之间的相对链接，
 `/product-shots/…`、`/videos/…` 换成本地 `assets/…`，外链一律整块去掉，`hidden` 属性去掉（面板摊开）。
 `download.html` 是我们手写的，脚本不会动它 ✓
+
+## 五、踩过的坑（别再犯）
+
+- **别加 `serve.json`**：Altare 上 `serve` 一读到它就直接挂（历史里那条 `失败 / The app stopped right after starting`）
+- 要让子页别回退到首页，改**启动命令去掉 `-s`**：`npx -y serve . -l tcp://0.0.0.0:$PORT`
+  带 `-s` 时 `/guides.html` 先 301 到 `/guides`，再被单页回退成首页 ⇒ 六个页面全变成首页内容
+- 一次部署失败之后，后面的 push 可能不再自动部署（历史里看不到新条目），得手动「重新部署」或改一次配置把它踢醒
+- **DNS 这边已经弄好**：Cloudflare 里 `www` 的 CNAME 已加（灰云），Altare 侧证书已签出；剩下在应用 Network 页加 `www.3263888.xyz`，不加就是 403
+
