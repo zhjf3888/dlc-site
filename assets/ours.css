@@ -10,3 +10,8 @@
 main img{height:auto}
 .faq-section{margin-top:34px}
 .site-cta{margin-top:30px}
+
+/* 并页之后：每块之间给一条分隔线，锚点跳转给顶栏留出高度 */
+.merged-page{margin-top:64px;padding-top:40px;border-top:1px solid rgba(255,255,255,.12)}
+.merged-page [id]{scroll-margin-top:96px}
+#guides,#guide-01,#guide-02,#guide-03,#download{scroll-margin-top:96px}
