@@ -65,9 +65,11 @@ python C:\Users\zhjf\AppData\Local\Temp\x340\mirror.py
 
 ## 五、踩过的坑（别再犯）
 
+- **页面必须是目录形式**（`guides/index.html`，链接写 `guides/`）：Altare 的静态服务器无视启动命令里的 `-s`，
+  扁平的 `guides.html` 会先 301 到 `/guides`，再把**首页**吐给你（六个页面内容全一样）。
+  镜像出扁平页之后跑 `restructure.py` 转成目录，再跑 `check-local.py` 检查所有站内引用有没有对应文件 ✓
+  顺序：`mirror.py` → `restructure.py` → `check-local.py` → commit push
 - **别加 `serve.json`**：Altare 上 `serve` 一读到它就直接挂（历史里那条 `失败 / The app stopped right after starting`）
-- 要让子页别回退到首页，改**启动命令去掉 `-s`**：`npx -y serve . -l tcp://0.0.0.0:$PORT`
-  带 `-s` 时 `/guides.html` 先 301 到 `/guides`，再被单页回退成首页 ⇒ 六个页面全变成首页内容
 - 一次部署失败之后，后面的 push 可能不再自动部署（历史里看不到新条目），得手动「重新部署」或改一次配置把它踢醒
 - **DNS 这边已经弄好**：Cloudflare 里 `www` 的 CNAME 已加（灰云），Altare 侧证书已签出；剩下在应用 Network 页加 `www.3263888.xyz`，不加就是 403
 
