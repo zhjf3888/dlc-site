@@ -1,0 +1,66 @@
+/* DeepLiveCam 中文站 · 纯 CSS，没有 JS，没有外链字体 */
+*{box-sizing:border-box}
+html{font-size:16px}
+body{margin:0;background:#f5f7fa;color:#1b2430;
+  font-family:-apple-system,"Segoe UI","Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;
+  line-height:1.75}
+a{color:#0b6b57;text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block;border-radius:10px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.top{background:#12233b;color:#fff;position:sticky;top:0;z-index:9}
+header.top .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;font-size:1.05rem}
+.brand img{width:26px;height:26px;border-radius:5px}
+nav.links{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav.links a{color:#cfd9e6;padding:7px 13px;border-radius:8px;font-size:.95rem}
+nav.links a:hover{background:#1d3352;text-decoration:none;color:#fff}
+nav.links a.now{background:#0b6b57;color:#fff}
+.hero{background:linear-gradient(160deg,#12233b,#1d3b5c);color:#fff;padding:44px 0 40px}
+.hero h1{margin:0 0 10px;font-size:2rem;letter-spacing:.5px}
+.hero p.sub{margin:0 0 22px;color:#c8d5e4;max-width:64ch}
+.hero .tag{display:inline-block;background:#0b6b57;color:#fff;padding:3px 10px;border-radius:999px;font-size:.82rem;margin-bottom:14px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;background:#0b6b57;color:#fff;padding:11px 20px;border-radius:9px;font-weight:600}
+.btn.alt{background:#28455f}
+.btn:hover{filter:brightness(1.08);text-decoration:none}
+.btns small{align-self:center;color:#a9b9cb;font-size:.85rem}
+section{padding:34px 0}
+section h2{margin:0 0 6px;font-size:1.45rem}
+section p.lead{margin:0 0 20px;color:#4b5a6b}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.card{background:#fff;border:1px solid #dfe5ec;border-radius:12px;padding:18px 20px}
+.card h3{margin:0 0 6px;font-size:1.12rem}
+.card p{margin:0 0 10px;color:#41505f;font-size:.95rem}
+ul.dots{margin:8px 0 0;padding-left:18px;color:#3c4a58;font-size:.93rem}
+ul.dots li{margin:3px 0}
+.shot{border:1px solid #dfe5ec;background:#fff;padding:8px;border-radius:14px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:6px}
+.step{background:#fff;border:1px solid #dfe5ec;border-radius:12px;padding:16px}
+.step b.num{display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;background:#0b6b57;color:#fff;border-radius:50%;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #dfe5ec;border-radius:12px;overflow:hidden;font-size:.93rem}
+th,td{padding:10px 12px;border-bottom:1px solid #e7ecf2;text-align:left;vertical-align:top}
+th{background:#eef2f7;font-weight:600}
+td.yes{color:#0b6b57;font-weight:700}
+td.no{color:#8c99a7}
+.note{background:#fff8e6;border:1px solid #f0dfae;border-radius:10px;padding:12px 15px;font-size:.92rem;color:#5b4c22}
+.blue{background:#eef5ff;border:1px solid #cfe0f5;color:#25415e}
+.mono{font-family:"Cascadia Mono",Consolas,monospace;font-size:.9em}
+.dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.dl .req{color:#4b5a6b;font-size:.9rem;margin:0 0 12px}
+.lines{margin:12px 0 0;padding-left:18px;font-size:.9rem;color:#41505f}
+.lines li{margin:3px 0}
+footer{background:#12233b;color:#a9b9cb;padding:26px 0;margin-top:34px;font-size:.9rem}
+footer a{color:#dfe7f0}
+footer .wrap{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+@media (prefers-color-scheme:dark){
+  body{background:#0f141b;color:#e5ebf2}
+  .card,.step,table{background:#161d27;border-color:#26313d}
+  .shot{background:#161d27;border-color:#26313d}
+  th{background:#1d2632}
+  th,td{border-color:#26313d}
+  section p.lead,.card p,ul.dots,.dl .req,.lines{color:#aab7c4}
+  .note{background:#241f10;border-color:#4a3d17;color:#e3d3a3}
+  .blue{background:#131f2c;border-color:#26405a;color:#c3d5e8}
+  a{color:#3ec7a8}
+}
