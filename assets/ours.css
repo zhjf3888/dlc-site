@@ -1,0 +1,12 @@
+/* 我们自己加的收尾：它靠 JS 的交互壳子（切界面、切演示视频、点图放大）在没 JS 的站点里点不动，
+   所以直接把视频和两张界面图都摊开显示，把切换按钮和失效计数收掉。 */
+.main-nav a.active{color:#fff;font-weight:600}
+.feature-media-actions,.feature-slide-options,.download-mirrors,.download-total{display:none}
+.feature-image-zoom,.feature-image-zoom img{cursor:default}
+.feature-image-zoom:focus-visible{outline:2px solid #2f8fd0;outline-offset:3px}
+.feature-preview-panel,.feature-interface-single{margin-bottom:14px}
+.feature-preview-panel video,.feature-video video{width:100%;height:auto;background:#000;border-radius:10px}
+.skip-link{position:absolute;left:-9999px;top:auto}
+main img{height:auto}
+.faq-section{margin-top:34px}
+.site-cta{margin-top:30px}

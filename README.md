@@ -1,58 +1,63 @@
-# dlc-site —— DeepLiveCam 中文门面站（要推到 Altare 的那份）
+# dlc-site —— DeepLiveCam 中文站（要推到 Altare 的那份）
 
-三个页面：**首页 / 功能 / 教程 / 下载**（首页算上共 4 个 html）。
-纯 HTML + 一个 `style.css`，**没有 JS、没有 CDN、没有外链字体** ⇒ 国内打开不会卡；
-图片全在 `assets\` 里（4 张产品图 + 3 张教程缩略图 + 1 张本机实拍 3.4.0 界面）。
-只有两处是指向外面的：教程详情页（原作者站）、下载页里「原版线路」那一组链接。
+布局、图片、视频全部照原作者官网（deeplivecam.pro）搬过来，**站内没有任何指向他的链接**：
+教程正文已经搬成我们自己的三页，视频和字幕都是本地文件，下载按钮只指我们自己的包 ✓
 
-功能文案、配置要求表、下载线路都是照原作者官网抄的真实内容
-（`deeplivecam.pro/deeplivecam-pro/features`、`/guides`、`/deeplivecam-pro/download`），
-授权那几段（一卡一机、到期锁、60 秒解锁、更新通道冻住）按咱们这套的实际行为写的 ✓
+| 文件 | 内容 |
+| --- | --- |
+| `index.html` | 功能介绍（实时换脸 / 内置虚拟相机 / 视频与图片 / 实时变声 / 头像动画 + 标准版与经典版对照表）+ 两个演示视频 |
+| `guides.html` | 教程目录（三篇卡片） |
+| `guide-01.html` | 第一次实时换脸与视频通话（4 步 + 检查结果 + 补充说明 + 常见问题，带演示视频和中文字幕） |
+| `guide-02.html` | 在 OBS 中只采集换脸输出窗口（5 步） |
+| `guide-03.html` | 用 OBS 播放视频，换脸后接入 Telegram（5 步） |
+| `download.html` | 我们自己的下载页：补丁版下载按钮、装机体检、解锁步骤、常见问题（FAQ 用 `<details>`，不用 JS 也能展开） |
+| `assets/author.css` | 原作者的整站样式表（就一个文件，里面没有外链字体） |
+| `assets/ours.css` | 我们加的收尾：把靠 JS 才生效的切换按钮收掉，视频和两张界面图直接摊开 |
+| `assets/shots/` | 产品图（960 和全尺寸各一套） |
+| `assets/videos/` | 3 个教程 mp4 + 中文字幕 vtt + 封面 jpg + 2 个功能演示 mp4（共约 22 MB） |
+
+**全站没有 JS、没有 CDN**，素材都在本地（总共约 26 MB ⇒ 进 GitHub 仓库没问题）✓
 
 ---
 
-## 一、要他点头的四件事（现在都还是空的 ✗）
+## 一、要他填的两处（现在还是空的 ✗）
 
-1. **补丁版下载链接** ⇒ `download.html` 里那句 `下载补丁版（链接待填）`（现在是 `href="#"`）
-   他那份客户包 213 文件 / 7.22 GB 放哪个网盘或直链，填进去就行 ✓
-2. **买卡 / 售后的联系方式** ⇒ `index.html` 里那张「卡在哪买、怎么续」的卡，里面写着 `【待填：购买入口 / 店铺 / 微信 QQ】`
-3. **用哪个子域名**：`www.3263888.xyz` 或 `dl.3263888.xyz`（两个都查过，还没建记录 ✓）
-4. **GitHub 仓库**：他有没有 GitHub 账号、仓库叫什么名（Altare 连 GitHub 才建得起来）
+1. **补丁版下载链接** ⇒ `download.html` 里 `https://REPLACE-ME.u3.altare.global/DeepLiveCam3Pro.7z`
+   把 `REPLACE-ME` 换成 Altare 上建好的 U3 桶名就行（一行的事）✓
+2. **买卡 / 售后联系方式** ⇒ `download.html` 的 CTA 段里 `【待填：购买入口 / 微信 QQ】`
 
-## 二、推到 Altare（App Hosting，免费档就够）
+## 二、3.67 GB 的包放哪儿（别放仓库）
+
+- `E:\DeepLiveCam3Pro.7z` = **3.67 GB** ⇒ **不能放 GitHub 仓库**（单文件 100 MB 上限，部署也从仓库拉）
+- 放 **U3 对象存储**：免费档 10 GB、**出口流量不要钱**、可公开直链、机房能选 `asia`
+- 上传三选一：控制台 Storage → U3 里拖文件上传 / `altr u3 put DeepLiveCam3Pro.7z <桶名>/DeepLiveCam3Pro.7z` / 任意 S3 客户端（aws、rclone，要 **path-style**）
+- 公开直链格式：`https://<桶名>.u3.altare.global/DeepLiveCam3Pro.7z`
+- 上传耗时看他的上行：20 Mbps 约 25 分钟，10 Mbps 约 50 分钟（一次传完，以后改了再换）
+
+## 三、上线步骤
 
 ```
 cd C:\Users\zhjf\Documents\Strata\Workspace\dlc-site
-git init -b main
-git add -A
-git commit -m "门面站第一版：功能 / 教程 / 下载"
 git remote add origin <他的仓库地址>
 git push -u origin main
 ```
 
-然后控制台 `console.altare.gg`：**Apps → New app → GitHub repository → Connect GitHub**，
-选中仓库；**Build and run** 里运行时会自己认成 **Static site**（根目录只有 html ⇒ 不用装依赖）；
-region 挑近的（伦敦 / 美西都行，客户在国内 ⇒ 后面挂 CF 或 Altare CDN 再调），创建即可 ✓
-上线后先拿到一个 `https://<应用名>.go.altare.global` ✓ 先点开看看对不对 ✓
+1. `console.altare.gg` → **Apps → New app → GitHub repository → Connect GitHub** 选仓库
+   运行时会认成 **Static site**（根目录只有 html，没有依赖）⇒ 创建
+   先拿 `https://<应用名>.go.altare.global` 点开验一遍 ✓
+2. **U3**：Storage → U3 → Create bucket（location 选 `asia`）⇒ 上传 `E:\DeepLiveCam3Pro.7z`
+   ⇒ 把 `download.html` 里的 `REPLACE-ME` 换成桶名，push 一次 ✓
+3. **绑域名 `www.3263888.xyz`**：应用 Network 页 `altr domains add <应用名> www.3263888.xyz`
+   然后 Cloudflare 加 `CNAME www → <应用名>.go.altare.global`，**代理改成「仅 DNS」（橙云→灰云）** ✗→✓
+   不然 Altare 签不出证书；证书它自己签自己续 ✓
 
-## 三、绑自己的域名（用 3263888.xyz 的新子域名）
-
-1. Altare 里给应用加名字：控制台应用的 **Network** 页加 `www.3263888.xyz`，
-   或命令行 `altr domains add <应用名> www.3263888.xyz`；
-   加完控制台会给一个目标地址（就是 `<应用名>.go.altare.global`）✓
-2. Cloudflare（`3263888.xyz` 的 NS 在这儿）加一条记录：
-   - 类型 `CNAME`，名字 `www`（或 `dl`），内容 = Altare 给的那个地址
-   - **代理状态必须改成「仅 DNS」（橙云 → 灰云）** ✗→✓
-     不然 Altare 拿不到证书（它自己会签，免费）
-3. 等 1～2 分钟，Altare 签好证书 ⇒ `https://www.3263888.xyz` 直接开 ✓
-   证书不用他管，Altare 自动续 ✓
-
-## 四、本地先看效果（不用上线）
-
-直接双击 `index.html`，或者：
+## 四、重新镜像（原作者页面改了想再搬一遍）
 
 ```
-pwsh: Start-Process msedge -ArgumentList '--headless','--screenshot=...','file:///.../index.html'
+python C:\Users\zhjf\AppData\Local\Temp\x340\mirror.py
 ```
 
-改文案就改那四个 html；样式集中在 `style.css`，深浅色跟系统自动切 ✓
+脚本干的事：把它的 DOM 里的 `script` / 语言切换 / 订阅动态支持导航 / 页脚法律链接全砍掉，
+它自己的导航页脚换成我们的，站内地址改写成一个 html 之间的相对链接，
+`/product-shots/…`、`/videos/…` 换成本地 `assets/…`，外链一律整块去掉，`hidden` 属性去掉（面板摊开）。
+`download.html` 是我们手写的，脚本不会动它 ✓
