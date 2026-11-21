@@ -49,9 +49,17 @@
 
 素材全在本地，**全站没有外链、没有 JS 依赖**（只有站内两段路由脚本）。
 
-## 待填
+## 下载包（U3 对象存储，已上线）
 
-- 下载按钮：`index.html` 里 `https://REPLACE-ME.u3.altare.global/DeepLiveCam3Pro.7z` ⇒ 把 `REPLACE-ME` 换成 U3 桶名（桶建在 `asia`、公开读）。`E:\DeepLiveCam3Pro.7z` = 3.67 GB，**不能进仓库**（GitHub 单文件 100 MB 上限）。
+- 直链：`https://dlc-dl.u3.altare.global/DeepLiveCam3Pro.7z` —— 桶 `dlc-dl`，Location **asia**，桶上开了 **Public access → Serve files publicly**。
+- 包 = 本机 `E:\DeepLiveCam3Pro.7z`，**3,943,968,824 字节**（3.67 GB），2026-11-21 上传；S3 多片 ETag `5ebd75e11ffa392faea854eecc3dec07-59`（64 MB × 59 片，多片 ETag 不是文件 MD5，别拿它比对）。**不能进仓库**（GitHub 单文件 100 MB 上限）。
+- 上传脚本：`C:\Users\zhjf\AppData\Local\Temp\x340\u3_upload.js`（S3 SigV4 分片，`--loc=asia`，path-style 走 `https://u3-asia.altare.global`）。密钥是控制台那把 `dlc-upload`（只授权 `dlc-dl`、读写）。
+- 实测口径，改链接时照这个来：
+  - **公开下载只用 `https://<桶>.u3.altare.global/<key>`**。`https://u3-asia.altare.global/<桶>/<key>` 匿名访问回 `403 Garage does not support anonymous access yet`，只能签名访问。
+  - 公开地址上**加查询串会 501 Not Implemented**（`?v=` 这类版本号加不了），要换包就得换 key 名或让边缘缓存过期（现在是 `max-age=31536000`，4 小时）。
+  - 匿名 `HEAD` 会 403，但 `GET`/`Range: GET` 正常 ⇒ 校验大小用 `curl -r 0-0` 看 `Content-Range: bytes 0-0/<总大小>`，别用 `-I`。
+  - 支持 Range ⇒ 用户断点续传没问题。
+- 重打包后重传：跑一次上面的脚本即可（同名覆盖）。校验：签名 `ListObjects` 看 `Size`、再 `Range` 拉首尾各 1 MB 跟本地比 sha256。
 
 ## 上线
 
