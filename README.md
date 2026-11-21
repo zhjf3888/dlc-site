@@ -71,3 +71,26 @@ python C:\Users\zhjf\AppData\Local\Temp\x340\mirror.py
 
 原作者官网 `deeplivecam.pro` 的骨架（我们照它分页，但没做订阅页）：
 `/`、`/deeplivecam-pro/features`、`/deeplivecam-pro/pricing`、`/deeplivecam-pro/download`、`/guides`、`/news`、`/support`、`/legal/*`、`/license/manage`、`sitemap.xml`、`llms.txt`。
+
+
+## 自己触发部署（不用去控制台点）
+
+它是 Altare 的 App Hosting，有正经 API（文档 `https://docs.altare.gg/altare-api`）。用队伍 API 令牌就能部署，我们这台机器上的令牌叫 `dlc`，权限里有 `servers:*`，但**没有** `servers:deploy`——实测照样能发部署：
+
+```bash
+API=https://console.altare.gg/api
+AUTH="Authorization: Bearer <令牌>"
+TEAM=6047863a-aa82-44ec-98ca-c0f63951b8b2                      # /api-tokens/self 里的 team.id
+APP=84394d9e-6eae-44e3-979f-e0d1764977f2                       # /tenants/$TEAM/servers 里 name=deeplivecam
+curl -s -X POST $API/tenants/$TEAM/servers/$APP/git/deploy \
+  -H "$AUTH" -H 'Content-Type: application/json' -d '{"ref":"main"}'   # 回包给 deployment.id
+curl -s $API/tenants/$TEAM/servers/$APP/git/deployments/<deployment.id> -H "$AUTH"   # .done 为真即部署完
+```
+
+`git/deploy` 永远部署 main 的最新提交，所以 push 卡住不自动部署时（这段时间经常卡），补一发就行。
+读-only 的排查：`GET /api-tokens/self` 看令牌归属与权限，`GET /tenants/$TEAM/servers` 看应用与其 `settings`（当前是 `runtime: static`、`start: npx -y serve@14 -s . -l tcp://0.0.0.0:$PORT`、`cacheStatic: true`）。
+
+## 边缘缓存会把「还没有这个文件」缓存四小时
+
+`cacheStatic: true` + Cloudflare：某个路径第一次访问时如果文件还不存在，回退的首页 HTML 会被缓存成 `Cache-Control: public, max-age=14400`（`CF-Cache-Status: HIT`），之后即使文件部署上去了，这个 URL 仍然回你首页。
+⇒ **所有 `assets/` 引用都带内容哈希版本号**（`?v=<sha256 前 10 位>`）。改了样式就把 `?v=` 换成新哈希；换文件名也能解决，但哈希更省事，不用记名字。
