@@ -94,3 +94,32 @@ curl -s $API/tenants/$TEAM/servers/$APP/git/deployments/<deployment.id> -H "$AUT
 
 `cacheStatic: true` + Cloudflare：某个路径第一次访问时如果文件还不存在，回退的首页 HTML 会被缓存成 `Cache-Control: public, max-age=14400`（`CF-Cache-Status: HIT`），之后即使文件部署上去了，这个 URL 仍然回你首页。
 ⇒ **所有 `assets/` 引用都带内容哈希版本号**（`?v=<sha256 前 10 位>`）。改了样式就把 `?v=` 换成新哈希；换文件名也能解决，但哈希更省事，不用记名字。
+
+## 线上打开下载页/教程页一片空白：多余的 </div>
+
+症状：导航四项正常、页面确实有内容（DOM 里字数都在），但正文区域看不见，滚很久才看到东西。
+
+根因：features 页面包后面多了一个 `</div>`。浏览器解析到它会把 `main#main` 和外面的
+`div.redesign-site.redesign-frame` 连着关掉，于是后面的下载页、教程页、三篇教程全被挂到 `<body>` 上：
+既拿不到 `main.container.site-main` 的容器样式，又排在已经关掉的那层壳后面——那层壳有 `min-height:100vh`，
+所以先空出一整屏，正文被推到 900 多像素以下。同时这些块脱离 `.redesign-site` 作用域后，
+`--ink` 等变量取的是深色主题那套，浅色字压在浅底上，看着就是空白页（作者 881 条规则挂在 `.redesign-site` 上）。
+
+修法：删掉多余的 `</div>`，并在页脚前补上 `redesign-frame` 真正的闭合（`</div></main>` -> `</div></main></div>`）。
+`dlcgate/fix_div_nesting3.py` 就是这次改的脚本，带配对校验。
+
+排查手段（别只 curl 看字节数，字节数是对的但渲染是空的）：本机起一个
+`npx -y serve@14 -s . -l 8791`，用带 `--remote-debugging-port=9333` 的 Chrome 连 CDP，
+打印 `.dlc-page` 的父节点和 `getBoundingClientRect().top`。
+父节点是 `body` 而不是 `main`、正文 top 在 900 以上，就是这个问题。
+脚本：`x340/cdp_topgap.js`（谁占了顶部）、`x340/cdp_blocks.js`（每块占位）、`x340/cdp_all.js`（五页面整页截图 + 可见页校验）。
+
+约定：改过页面结构以后，必须在浏览器里确认七页都挂在 `main#main` 里、每条路由只有一页可见，再说上线。
+
+## 源站表头会被 cacheStatic 覆盖
+
+仓库里的 `serve.json` 给 HTML 写 `no-cache`、给 `assets/**` 写一年 `immutable`，本机用同款
+`serve` 命令验过确实生效。但 Altare 的 `cacheStatic: true` 会在边缘重写：静态素材统一
+`Cache-Control: public, max-age=14400`（4 小时），HTML 走 `CF-Cache-Status: DYNAMIC` 不缓存。
+结论：HTML 不会被边缘缓存，浏览器要看新版直接 Ctrl+F5；素材仍然靠 URL 里的
+`?v=<sha256 前 10 位>` 版本号换缓存键，这条约定继续有效。
