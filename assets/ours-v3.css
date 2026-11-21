@@ -1,0 +1,37 @@
+/* 我们自己加的收尾：它靠 JS 的交互壳子（切界面、切演示视频、点图放大）在没 JS 的站点里点不动，
+   所以直接把视频和两张界面图都摊开显示，把切换按钮和失效计数收掉。 */
+.main-nav a.active{color:#fff;font-weight:600}
+.feature-media-actions,.feature-slide-options,.download-mirrors,.download-total{display:none}
+.feature-image-zoom,.feature-image-zoom img{cursor:default}
+.feature-image-zoom:focus-visible{outline:2px solid #2f8fd0;outline-offset:3px}
+.feature-preview-panel,.feature-interface-single{margin-bottom:14px}
+.feature-preview-panel video,.feature-video video{width:100%;height:auto;background:#000;border-radius:10px}
+.skip-link{position:absolute;left:-9999px;top:auto}
+main img{height:auto}
+.faq-section{margin-top:34px}
+.site-cta{margin-top:30px}
+
+/* 并页之后：每块之间给一条分隔线，锚点跳转给顶栏留出高度 */
+.merged-page{margin-top:64px;padding-top:40px;border-top:1px solid rgba(255,255,255,.12)}
+.merged-page [id]{scroll-margin-top:96px}
+#guides,#guide-01,#guide-02,#guide-03,#download{scroll-margin-top:96px}
+
+/* 并页后：教程区原本 min-height:100vh 会各撑出一整屏空白 */
+.merged-page .international-site{min-height:0}
+.merged-page .intl-heading{padding-top:8px}
+
+
+/* ===== 前端分页（首页 / 功能 / 下载 / 教程） ===== */
+/* 没有 JS 时 7 页内容全部可读（爬虫也能拿到全部内容）；
+   有 JS 时按 <html> 上的 dlc-route-* 只显示当前页 */
+html.dlc-js .dlc-page{display:none}
+html.dlc-route-home .dlc-page[data-page="home"],
+html.dlc-route-features .dlc-page[data-page="features"],
+html.dlc-route-download .dlc-page[data-page="download"],
+html.dlc-route-guides .dlc-page[data-page="guides"],
+html.dlc-route-guide-01 .dlc-page[data-page="guide-01"],
+html.dlc-route-guide-02 .dlc-page[data-page="guide-02"],
+html.dlc-route-guide-03 .dlc-page[data-page="guide-03"]{display:block}
+.dlc-404bar{display:none}
+html.dlc-notfound .dlc-404bar{display:block;padding:14px 16px;margin:0 0 18px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.06)}
+.dlc-404bar p{margin:0}

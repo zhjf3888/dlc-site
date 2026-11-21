@@ -1,75 +1,73 @@
-# dlc-site —— DeepLiveCam 中文站（要推到 Altare 的那份）
+# dlc-site —— DeepLiveCam 3 Pro 中文门面站（推 Altare 的那份）
 
-布局、图片、视频全部照原作者官网（deeplivecam.pro）搬过来，**站内没有任何指向他的链接**：
-教程正文已经搬成我们自己的三页，视频和字幕都是本地文件，下载按钮只指我们自己的包 ✓
+现在**是分页的**：一个 `index.html` + 前端路由（历史 API），URL 干净、前进后退能用、每页有自己的标题和描述。
+全站**不出现订阅/价格，也不出现任何联系方式**（他的要求）。
+
+| 路由 | 页面 | 内容 |
+| --- | --- | --- |
+| `/` | 首页 | 一句话介绍 + 三个入口卡（功能 / 下载 / 教程）+ 能力与机器要求 + 演示视频 |
+| `/features` | 功能 | 实时换脸 / 内置虚拟相机 / 视频与图片 / 实时变声 / 头像动画 + 标准版与经典版对照表 |
+| `/download` | 下载与安装 | 补丁版下载、系统要求、装机体检、卡密解锁步骤、常见问题 |
+| `/guides` | 教程 | 三篇教程卡片目录 |
+| `/guides/1` `/guides/2` `/guides/3` | 三篇教程 | 步骤 + 中文演示视频与字幕（`<track>`） |
+
+路由怎么运作（`index.html` 里两段内联脚本，没有外部 JS、没有 CDN）：
+
+1. `<head>` 里第一段先按 `location.pathname` 判定当前页，给 `<html>` 加 `dlc-js dlc-route-xxx`（认不出的地址再加 `dlc-notfound`，页顶显示一条提示条）——先定住再绘制，不会整站内容一闪。
+2. `</body>` 前第二段管点击（`a[data-link]` → `history.pushState`）、`popstate`、当前页标题/描述/导航高亮。
+3. `assets/ours-v3.css` 末尾那段决定显示哪一页：**没有 JS 时七页内容全部显示**（爬虫能拿到全部正文），有 JS 时只显示当前页。
+4. 所有素材都是站点根绝对路径（`/assets/...`），二级路径 `/guides/1` 下也不会错位。
+5. 旧写法兼容：`#guides`、`#guide-01`、`#download`、`/index`、`index.html` 都会落到对应路由。
+6. `canonical` 固定指向 `https://www.3263888.xyz/`：同一个 HTML 回应所有地址，合并权重比七个重复页诚实。
+
+## 为什么不放成真的多个 .html 文件（实测托管方规则，别再试第二遍）
+
+线上 `www.3263888.xyz` 是 Altare 的 **Static site** 处理器，逐条实测：
+
+- 小写 `*.html` 一律 **301 去掉后缀**：`/index.html → /index`、`/probe/d.html → /probe/d`
+- 路径没命中真文件 → **200 返回首页 index.html**（响应头 `Content-Disposition: inline; filename="index.html"`）
+- 目录页 `x/index.html` 不认（301 → `/x/index` → 首页）；**无后缀的真文件也不认**
+- 小写 `.htm` 也当网页后缀处理 → 首页
+- **只有大写 `.HTM` 直接命中真文件**，且 `Content-Type: text/html; charset=utf-8`（应急可用，URL 难看）
+- 仓库里的文件全都部署了（`/server.js`、`/package.json` 线上都能取到），只是静态处理器不肯放网页走
+- `robots.txt` 被 Altare 覆盖成它自己那份（2676 字节），我们仓库那份 23 字节没生效
+
+⇒ Static 模式下结构性只能有一个 HTML 页。要真·多文件分页，只有两条：
+**A** 在 Altare 控制台把这个应用的 cleanUrls / SPA 回退关掉；**B** 换 Node 运行时（`server.js` 已经写好并在线，就是为这个坑写的，还差视频 Range 支持）。
+现在这套前端路由在 A/B 下也照样能用，页面不用重写。
+
+## 文件
 
 | 文件 | 内容 |
 | --- | --- |
-| `index.html` | 功能介绍（实时换脸 / 内置虚拟相机 / 视频与图片 / 实时变声 / 头像动画 + 标准版与经典版对照表）+ 两个演示视频 |
-| `guides.html` | 教程目录（三篇卡片） |
-| `guide-01.html` | 第一次实时换脸与视频通话（4 步 + 检查结果 + 补充说明 + 常见问题，带演示视频和中文字幕） |
-| `guide-02.html` | 在 OBS 中只采集换脸输出窗口（5 步） |
-| `guide-03.html` | 用 OBS 播放视频，换脸后接入 Telegram（5 步） |
-| `download.html` | 我们自己的下载页：补丁版下载按钮、装机体检、解锁步骤、常见问题（FAQ 用 `<details>`，不用 JS 也能展开） |
-| `assets/author.css` | 原作者的整站样式表（就一个文件，里面没有外链字体） |
-| `assets/ours.css` | 我们加的收尾：把靠 JS 才生效的切换按钮收掉，视频和两张界面图直接摊开 |
-| `assets/shots/` | 产品图（960 和全尺寸各一套） |
-| `assets/videos/` | 3 个教程 mp4 + 中文字幕 vtt + 封面 jpg + 2 个功能演示 mp4（共约 22 MB） |
+| `index.html` | 七页内容 + 两段路由脚本（约 53 KB） |
+| `assets/author.css` | 原作者官网的整站样式表（里面没有外链字体） |
+| `assets/ours-v3.css` | 我们加的收尾（含分页显隐规则）。**改样式必须换文件名**：它的 “Cache static files” 边缘缓存不会被部署刷新 |
+| `assets/shots/` | 产品界面图（960 与全尺寸两套 webp） |
+| `assets/videos/` | 三篇教程 mp4 + 中文 vtt + 封面 jpg + 两个功能演示 mp4（约 22 MB） |
+| `server.js` | 自带的极简静态服务器，走 B 路线时才用到 |
 
-**全站没有 JS、没有 CDN**，素材都在本地（总共约 26 MB ⇒ 进 GitHub 仓库没问题）✓
+素材全在本地，**全站没有外链、没有 JS 依赖**（只有站内两段路由脚本）。
 
----
+## 待填
 
-## 一、要他填的两处（现在还是空的 ✗）
+- 下载按钮：`index.html` 里 `https://REPLACE-ME.u3.altare.global/DeepLiveCam3Pro.7z` ⇒ 把 `REPLACE-ME` 换成 U3 桶名（桶建在 `asia`、公开读）。`E:\DeepLiveCam3Pro.7z` = 3.67 GB，**不能进仓库**（GitHub 单文件 100 MB 上限）。
 
-1. **补丁版下载链接** ⇒ `download.html` 里 `https://REPLACE-ME.u3.altare.global/DeepLiveCam3Pro.7z`
-   把 `REPLACE-ME` 换成 Altare 上建好的 U3 桶名就行（一行的事）✓
-2. **买卡 / 售后联系方式** ⇒ `download.html` 的 CTA 段里 `【待填：购买入口 / 微信 QQ】`
-
-## 二、3.67 GB 的包放哪儿（别放仓库）
-
-- `E:\DeepLiveCam3Pro.7z` = **3.67 GB** ⇒ **不能放 GitHub 仓库**（单文件 100 MB 上限，部署也从仓库拉）
-- 放 **U3 对象存储**：免费档 10 GB、**出口流量不要钱**、可公开直链、机房能选 `asia`
-- 上传三选一：控制台 Storage → U3 里拖文件上传 / `altr u3 put DeepLiveCam3Pro.7z <桶名>/DeepLiveCam3Pro.7z` / 任意 S3 客户端（aws、rclone，要 **path-style**）
-- 公开直链格式：`https://<桶名>.u3.altare.global/DeepLiveCam3Pro.7z`
-- 上传耗时看他的上行：20 Mbps 约 25 分钟，10 Mbps 约 50 分钟（一次传完，以后改了再换）
-
-## 三、上线步骤
+## 上线
 
 ```
 cd C:\Users\zhjf\Documents\Strata\Workspace\dlc-site
-git remote add origin <他的仓库地址>
-git push -u origin main
+git push origin main
 ```
 
-1. `console.altare.gg` → **Apps → New app → GitHub repository → Connect GitHub** 选仓库
-   运行时会认成 **Static site**（根目录只有 html，没有依赖）⇒ 创建
-   先拿 `https://<应用名>.go.altare.global` 点开验一遍 ✓
-2. **U3**：Storage → U3 → Create bucket（location 选 `asia`）⇒ 上传 `E:\DeepLiveCam3Pro.7z`
-   ⇒ 把 `download.html` 里的 `REPLACE-ME` 换成桶名，push 一次 ✓
-3. **绑域名 `www.3263888.xyz`**：应用 Network 页 `altr domains add <应用名> www.3263888.xyz`
-   然后 Cloudflare 加 `CNAME www → <应用名>.go.altare.global`，**代理改成「仅 DNS」（橙云→灰云）** ✗→✓
-   不然 Altare 签不出证书；证书它自己签自己续 ✓
+push 后 Altare 有时不会自动部署，要在控制台（应用 deeplivecam）点「部署最新版本」。
+域名已经是 `CNAME www → deeplivecam.go.altare.global`（灰云 / 仅 DNS），裸域 `3263888.xyz` 与 `api. / auth. / update. / up. / m.` 都指向阿里云，**动这个站不碰阿里云**。
 
-## 四、重新镜像（原作者页面改了想再搬一遍）
-
+## 重新镜像原作者页面
 
 ```
 python C:\Users\zhjf\AppData\Local\Temp\x340\mirror.py
 ```
 
-脚本干的事：把它的 DOM 里的 `script` / 语言切换 / 订阅动态支持导航 / 页脚法律链接全砍掉，
-它自己的导航页脚换成我们的，站内地址改写成一个 html 之间的相对链接，
-`/product-shots/…`、`/videos/…` 换成本地 `assets/…`，外链一律整块去掉，`hidden` 属性去掉（面板摊开）。
-`download.html` 是我们手写的，脚本不会动它 ✓
-
-## 五、踩过的坑（别再犯）
-
-- **页面必须是目录形式**（`guides/index.html`，链接写 `guides/`）：Altare 的静态服务器无视启动命令里的 `-s`，
-  扁平的 `guides.html` 会先 301 到 `/guides`，再把**首页**吐给你（六个页面内容全一样）。
-  镜像出扁平页之后跑 `restructure.py` 转成目录，再跑 `check-local.py` 检查所有站内引用有没有对应文件 ✓
-  顺序：`mirror.py` → `restructure.py` → `check-local.py` → commit push
-- **别加 `serve.json`**：Altare 上 `serve` 一读到它就直接挂（历史里那条 `失败 / The app stopped right after starting`）
-- 一次部署失败之后，后面的 push 可能不再自动部署（历史里看不到新条目），得手动「重新部署」或改一次配置把它踢醒
-- **DNS 这边已经弄好**：Cloudflare 里 `www` 的 CNAME 已加（灰云），Altare 侧证书已签出；剩下在应用 Network 页加 `www.3263888.xyz`，不加就是 403
-
+原作者官网 `deeplivecam.pro` 的骨架（我们照它分页，但没做订阅页）：
+`/`、`/deeplivecam-pro/features`、`/deeplivecam-pro/pricing`、`/deeplivecam-pro/download`、`/guides`、`/news`、`/support`、`/legal/*`、`/license/manage`、`sitemap.xml`、`llms.txt`。
