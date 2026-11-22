@@ -51,8 +51,10 @@
 
 ## 下载包（U3 对象存储，已上线）
 
-- 直链：`https://dlc-dl.u3.altare.global/DeepLiveCam3Pro.7z` —— 桶 `dlc-dl`，Location **asia**，桶上开了 **Public access → Serve files publicly**。
-- 包 = 本机 `E:\DeepLiveCam3Pro.7z`，**3,943,968,824 字节**（3.67 GB），2026-11-21 上传；S3 多片 ETag `5ebd75e11ffa392faea854eecc3dec07-59`（64 MB × 59 片，多片 ETag 不是文件 MD5，别拿它比对）。**不能进仓库**（GitHub 单文件 100 MB 上限）。
+- 直链（现役，2026-11-22）：`https://dlc-dl.u3.altare.global/DeepLiveCam3Pro-3.4.0r2.7z` —— 桶 `dlc-dl`，Location **asia**，桶上开了 **Public access → Serve files publicly**。
+- 包 = 本机 `E:\DeepLiveCam3Pro-3.4.0r2.7z`，**3,932,851,420 字节**（3.66 GB，7-Zip `-mx=5 -ms` 之外默认单块；190 文件 / 31 目录），2026-11-22 上传 ⇒ 这版主程序修了「随机照片」绕过（exe sha256 前 16 位 `98D4CF7CA92495DE`）。**不能进仓库**（GitHub 单文件 100 MB 上限）。
+- 上一版 key `DeepLiveCam3Pro.7z`（3,943,968,824 字节，11-21 上传，多片 ETag `5ebd75e11ffa392faea854eecc3dec07-59`）**已于 2026-11-22 删除**：桶 `dlc-dl` 的**对象总大小配额正好是 3,943,968,824 字节**（= 旧包一个文件），不删旧包就传不进新包（CompleteMultipartUpload 会回 `403 Forbidden: Bucket size quota is reached`，紧接着 uploadId 被清 ⇒ `404 NoSuchUpload`）。删完旧包再传，新包小 11 MB ⇒ 刚好放得下。边缘缓存还在顶，旧链短时间仍回 206。
+- 换包流程记牢：**必须先删旧对象（或让他在控制台把桶配额调大）→ 上传新 key → 改本文件与 `index.html` 的直链 → push**；旧 key 边缘缓存 `max-age=31536000`，所以换包一定要换 key 名。
 - 上传脚本：`C:\Users\zhjf\AppData\Local\Temp\x340\u3_upload.js`（S3 SigV4 分片，`--loc=asia`，path-style 走 `https://u3-asia.altare.global`）。密钥是控制台那把 `dlc-upload`（只授权 `dlc-dl`、读写）。
 - 实测口径，改链接时照这个来：
   - **公开下载只用 `https://<桶>.u3.altare.global/<key>`**。`https://u3-asia.altare.global/<桶>/<key>` 匿名访问回 `403 Garage does not support anonymous access yet`，只能签名访问。
